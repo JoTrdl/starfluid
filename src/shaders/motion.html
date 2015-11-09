@@ -1,0 +1,30 @@
+<script type="application/x-glsl" id="fluid-motion">
+precision highp float;
+varying vec2 vUv;
+
+uniform sampler2D tSampler;
+
+uniform float ratio;
+
+uniform vec2 point;
+uniform float dye;
+uniform vec2 velocity;
+
+const float VELOCITY_RADIUS = 500.0;
+const float DYE_RADIUS = 2000.0;
+
+void main() {
+  gl_FragColor = texture2D(tSampler, vUv);
+  
+  vec2 pos = vUv * vec2(ratio, 1.0);
+  vec2 rPoint = point * vec2(ratio, 1.0);
+
+  float gaussian = -dot(pos - rPoint, pos - rPoint);
+
+  // Velocity
+  gl_FragColor.xy = velocity * exp(gaussian * VELOCITY_RADIUS) * 100.0;
+
+  // dye
+  gl_FragColor.z = dye * exp(gaussian * DYE_RADIUS);
+}
+</script>

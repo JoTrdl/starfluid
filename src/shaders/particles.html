@@ -1,0 +1,65 @@
+
+<script type="application/x-glsl" id="fragment-particle-data">
+precision highp float;
+
+varying vec2 vUv;
+
+uniform sampler2D tSampler;
+uniform sampler2D solver;
+
+uniform float dt;
+uniform vec2 d;
+
+void main() {
+  vec4 data = texture2D(tSampler, vUv);
+  
+  data.xy += dt * texture2D(solver, data.xy).xy * d * 2.0;
+  if (data.a > 0.0) {
+    data.a -= 0.01;
+  }
+  else {
+    data = vec4(-1);
+  } 
+  
+  gl_FragColor = data;
+}
+</script>
+
+
+<script type="application/x-glsl" id="vertex-particles">
+precision highp float;
+
+attribute vec2 position;
+
+varying vec2 vUv;
+
+uniform sampler2D particleData;
+uniform float ratio;
+
+void main() {  
+  vec4 data = texture2D(particleData, position);
+  vec2 point = data.xy;
+  float size = data.z;
+
+  vUv = position;
+  vec2 vPos = point * 2.0 - 1.0;
+
+  gl_PointSize = size * ratio;
+  gl_Position = vec4(vPos.x, vPos.y, 0, 1);
+}
+</script>
+
+<script type="application/x-glsl" id="fragment-particles">
+precision highp float;
+
+varying vec2 vUv;
+uniform float ratio;
+uniform sampler2D tSampler;
+
+// gold color
+const vec4 color = vec4(1.0, 0.5, 0.166, 0.66);
+
+void main() {
+  gl_FragColor = color;
+}
+</script>

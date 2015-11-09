@@ -1,2 +1,2 @@
-# starsfluid
+# Stars Fluid
 Stars Fluid Experiment

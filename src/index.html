@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Stars Fluid</title>
+  <meta charset="utf-8"/>
+  <meta name="description" content="Stars Fluid Chrome Experiment">
+  <meta name="keywords" content="JavaScript,WegGL,Fluid,Particles">
+  <meta name="author" content="Johann Troendle">
+
+  <link rel="icon" href="https://www.chromeexperiments.com/img/favicons/64x64.png" sizes="64x64">
+
+  <style>
+    html, body { margin: 0; padding: 0; background-color: #000; }
+    canvas { position: absolute; top: 0; left: 0; z-index: 0; }
+    #screenshot { position: absolute; width: 100%; height: 100%; z-index: 1; display: none; }
+    #ce { position: absolute; z-index: 3; bottom: 10px; right: 10px }
+  </style>
+  
+  <script src="js/lib/rtt.gl.js"></script>
+  <script src="js/lib/stage.gl.js"></script>
+  <script src="js/lib/loader.gl.js"></script>
+
+  <script src="js/motion.js"></script>
+  <script src="js/fluid.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/visualizer.js"></script>
+</head>
+
+<body>
+  <img id="screenshot" src="img/starsfluid.png"/>
+  <canvas id="canvas" width="512" height="512"></canvas>
+  <img id="ce" src="img/ce.png"/>
+</body>
+
+<extern src="shaders/motion.html"></extern>
+<extern src="shaders/fluid.html"></extern>
+<extern src="shaders/particles.html"></extern>
+<extern src="shaders/visualizer.html"></extern>
+
+<script>
+  
+  (function() {
+    var canvas = document.getElementById('canvas');
+
+    var onResize = function() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    onResize();
+    window.addEventListener('resize', onResize);
+
+    var renderer, gl, supported = true;
+    try {
+      renderer = new Stage.Renderer(canvas);
+      gl = renderer.context.gl;
+    } catch(e) {
+      supported = false;
+    }
+
+    supported = gl && gl.getExtension('OES_texture_float') && gl.getExtension('OES_texture_float_linear');
+
+    if (!supported) {
+
+      document.getElementById('screenshot').style.display = 'block';
+
+      // defering alert to allow a repaint for displaying images
+      setTimeout(function() { 
+        alert('Sorry, experiment is not supported on your browser.')
+      }, 0);
+
+      return;
+    }
+    
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+    renderer
+      .effect(new Stage.Motion())
+      .effect(new Stage.Fluid())
+      .effect(new Stage.Particles())
+      .effect(new Stage.Visualizer());
+
+    Loader.done(function() {
+      renderer.render();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.keyCode == 32) {
+        renderer.pause();
+      }
+    }, false)
+  })();
+</script>
+
+</html>

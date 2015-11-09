@@ -1,0 +1,10 @@
+{
+  "name": "starsfluid",
+  "description": "Stars Fluid Chrome Experiment",
+  "version": "1.0.0",
+  "author": "Johann Troendle",
+  "devDependencies": {
+    "gulp": "latest",
+    "gulp-connect": "latest"
+  }
+}
