@@ -153,8 +153,6 @@
       this.effects[i].resize(this.context);
     }
 
-    this.monitor.reset();
-    
     return this;
   };
 
