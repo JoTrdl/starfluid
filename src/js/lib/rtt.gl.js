@@ -1,15 +1,519 @@
 /*! RTT.gl v1.0.0 | (c) 2015 Johann Troendle | https://github.com/JoTrdl/rtt.gl */
-(function(p){var k={createProgram:function(a,b,c){var d,e,g=a.createProgram();try{d=this.compileShader(a,b,a.VERTEX_SHADER),e=this.compileShader(a,c,a.FRAGMENT_SHADER)}catch(f){throw a.deleteProgram(g),f;}a.attachShader(g,d);a.deleteShader(d);a.attachShader(g,e);a.deleteShader(e);a.linkProgram(g);return g},compileShader:function(a,b,c){c=a.createShader(c);a.shaderSource(c,b);a.compileShader(c);if(!a.getShaderParameter(c,a.COMPILE_STATUS)){b=a.getShaderSource(c).split("\n");for(var d="",e=0;e<b.length;e++)d+=
-e+1+"."+b[e]+"\n";throw"GLSL Compilation Error:\n"+a.getShaderInfoLog(c)+"\n"+d;}return c},createTexture:function(a,b,c,d){var e=d&&d.type||a.UNSIGNED_BYTE,g=d&&d.minFilter||a.NEAREST,f=d&&d.magFilter||a.NEAREST,k=d&&d.wrapS||a.CLAMP_TO_EDGE;d=d&&d.wrapT||a.CLAMP_TO_EDGE;var h=a.createTexture();a.bindTexture(a.TEXTURE_2D,h);a.texImage2D(a.TEXTURE_2D,0,a.RGBA,b,c,0,a.RGBA,e,null);a.texParameteri(a.TEXTURE_2D,a.TEXTURE_MAG_FILTER,f);a.texParameteri(a.TEXTURE_2D,a.TEXTURE_MIN_FILTER,g);a.texParameteri(a.TEXTURE_2D,
-a.TEXTURE_WRAP_S,k);a.texParameteri(a.TEXTURE_2D,a.TEXTURE_WRAP_T,d);a.bindTexture(a.TEXTURE_2D,null);return h}},m=new Float32Array([-1,-1,1,-1,-1,1,1,-1,1,1,-1,1]),n=m.length/2,h=function(a,b,c,d,e,g){b=a.getUniformLocation(b,d);if(null!==e&&b)if(d=[b],e.length?d=d.concat(e):d.push(e),g)if(c.call(a,b,e),g.length)for(c=0;c<g.length;c++)a.activeTexture(a.TEXTURE0+e[c]),a.bindTexture(a.TEXTURE_2D,g[c]);else a.activeTexture(a.TEXTURE0+e),a.bindTexture(a.TEXTURE_2D,g);else c.apply(a,d)},l=function(a,
-b,c,d,e,g){b=a.getAttribLocation(b,c);0>b||(a.bindBuffer(a.ARRAY_BUFFER,e),a.bufferData(a.ARRAY_BUFFER,g,a.STATIC_DRAW),a.enableVertexAttribArray(b),a.vertexAttribPointer(b,d,a.FLOAT,!1,0,0))},f=function(a,b){this.options=b||{};(this.gl=a)&&this.gl instanceof WebGLRenderingContext?(this.width=this.options.width||a.canvas.width,this.height=this.options.height||a.canvas.height,this.viewportWidth=this.options.viewportWidth||a.canvas.width,this.viewportHeight=this.options.viewportHeight||a.canvas.height,
-this.reset(!0)):console.log("Error, paramater [gl] must be a WebGL context")};f.prototype.resize=function(a){var b=this.gl;this.width=a&&a.width||b.canvas.width;this.height=a&&a.height||b.canvas.height;this.viewportWidth=a&&a.viewportWidth||b.canvas.width;this.viewportHeight=a&&a.viewportHeight||b.canvas.height;for(a=0;a<this.textures.length;a++){var c=this.options.texture&&this.options.texture.type||b.UNSIGNED_BYTE;b.bindTexture(b.TEXTURE_2D,this.textures[a]);b.texImage2D(b.TEXTURE_2D,0,b.RGBA,this.width,
-this.height,0,b.RGBA,c,null)}for(a=0;a<this.history.length;a++)c=this.options.texture&&this.options.texture.type||b.UNSIGNED_BYTE,b.bindTexture(b.TEXTURE_2D,this.history[a]),b.texImage2D(b.TEXTURE_2D,0,b.RGBA,this.width,this.height,0,b.RGBA,c,null);return this};f.prototype.reset=function(a){var b=this.gl;if(!a){for(a=0;a<this.textures.length;a++)b.deleteTexture(this.textures[a]);for(a=0;a<this.shaders.length;a++)b.deleteProgram(this.shaders[a]);b.deleteFramebuffer(this.frameBuffer);b.deleteBuffer(this.geometryBuffer);
-for(a=0;a<this.history.length;a++)b.deleteTexture(this.history[a])}this.shaders=[];this.attributes=[];this.uniforms=[];this.frameBuffer=b.createFramebuffer();this.textures=[k.createTexture(b,this.width,this.height,this.options.texture),k.createTexture(b,this.width,this.height,this.options.texture)];this.history=Array(this.options.history+1||0);for(a=0;a<this.history.length;a++)this.history[a]=k.createTexture(b,this.width,this.height,this.options.texture);this.renderIndex=0;this.quadBuffer=b.createBuffer();
-this.paintShader=k.createProgram(b,"attribute vec2 position;\nvarying vec2 vUv;\nvoid main() {\nvUv =  position;\nvec2 vPos = position * 2.0 - 1.0;\ngl_Position = vec4(vPos.x, vPos.y, 0, 1);\n}","precision highp float;\nuniform sampler2D tSampler;\nvarying vec2 vUv;\nvoid main() {\n  gl_FragColor = texture2D(tSampler, vUv);\n}");b.bindBuffer(b.ARRAY_BUFFER,this.quadBuffer);this.quadVertices=new Float32Array(m);this.geometryBuffer=this.quadBuffer;this.vertices=this.quadVertices;this.geometry=[b.TRIANGLE_STRIP,
-0,n];this.options.geometry&&(this.geometryBuffer=b.createBuffer(),this.vertices=this.options.geometry.shift(),this.geometry=this.options.geometry);return this};f.prototype.fragment=function(a,b){return this.vertexFragment("attribute vec2 position;\nvarying vec2 vUv;\nvoid main() {\nvUv =  position;\nvec2 vPos = position * 2.0 - 1.0;\ngl_Position = vec4(vPos.x, vPos.y, 0, 1);\n}",a,b)};f.prototype.vertexFragment=function(a,b,c,d){a=k.createProgram(this.gl,a,b);this.shaders.push(a);this.uniforms.push(c);
-for(var e in d)d[e].buffer=gl.createBuffer();this.attributes.push(d);return this};f.prototype.render=function(){var a=this.gl,b,c,d,e;for(c=0;c<this.shaders.length;c++){d=0;this.renderIndex=(this.renderIndex+1)%2;b=this.output;this.output=this.textures[this.renderIndex];this.history.length&&c==this.shaders.length-1&&(this.history.unshift(this.history.pop()),this.output=this.history[0]);a.useProgram(this.shaders[c]);a.bindFramebuffer(a.FRAMEBUFFER,this.frameBuffer);a.framebufferTexture2D(a.FRAMEBUFFER,
-a.COLOR_ATTACHMENT0,a.TEXTURE_2D,this.output,0);l(a,this.shaders[c],"position",2,this.geometryBuffer,this.vertices);e=this.attributes[c]||{};for(var g in e)l(a,this.shaders[c],g,e[g].size,e[g].buffer,e[g].data);h(a,this.shaders[c],a.uniform1i,"tSampler",d,b);d++;b=this.uniforms[c]||{};for(var f in b)"t"==b[f].type?(h(a,this.shaders[c],a.uniform1i,f,d,b[f].value),d++):h(a,this.shaders[c],a["uniform"+b[f].type],f,b[f].value);if(this.history.length){e=[];for(b=1;b<this.history.length;b++)e.push(++d);
-h(a,this.shaders[c],a.uniform1iv,"tHistory",e,this.history.slice(1))}a.viewport(0,0,this.width,this.height);a.drawArrays.apply(a,this.geometry)}return this};f.prototype.iterate=function(a){for(var b=this.shaders[this.shaders.length-1],c=this.uniforms[this.uniforms.length-1],d=0;d<a;d++)this.shaders.push(b),this.uniforms.push(c);return this};f.prototype.swap=function(){var a=this.textures[0];this.textures[0]=this.textures[1];this.textures[1]=a;return this};f.prototype.clear=function(){if(!this.output)return this;
-var a=this.gl;a.bindFramebuffer(a.FRAMEBUFFER,this.frameBuffer);a.clear(a.COLOR_BUFFER_BIT|a.DEPTH_BUFFER_BIT|a.STENCIL_BUFFER_BIT);return this};f.prototype.paint=function(){if(!this.output)return console.log("Error: no output to paint. Call render() at least once."),this;var a=this.gl;a.useProgram(this.paintShader);a.bindFramebuffer(a.FRAMEBUFFER,null);l(a,this.paintShader,"position",2,this.quadBuffer,this.quadVertices);h(a,this.paintShader,a.uniform1i,"tSampler",0,this.output);a.viewport(0,0,this.viewportWidth,
-this.viewportHeight);a.drawArrays(a.TRIANGLE_STRIP,0,n);return this};p.RTT=f})(window);
+;(function(exports) {
+
+  'use strict';
+
+  var utils = {};
+
+  /**
+   * Create a GL program.
+   * 
+   * @param  {WebGLRenderingContext} gl      WebGL context
+   * @param  {String}                vsCode  Vertex code
+   * @param  {String}                fsCode  Fragment code
+   * @return {Program}                       The program compiled & linked.
+   */
+  utils.createProgram = function(gl, vsCode, fsCode) {
+    var i, vs, fs, tmpProgram = gl.createProgram();
+
+    try {
+      vs = this.compileShader(gl, vsCode, gl.VERTEX_SHADER);
+      fs = this.compileShader(gl, fsCode, gl.FRAGMENT_SHADER);
+    } catch (e) {
+      gl.deleteProgram(tmpProgram);
+      throw e;
+    }
+
+    gl.attachShader(tmpProgram, vs);
+    gl.deleteShader(vs);
+    gl.attachShader(tmpProgram, fs);
+    gl.deleteShader(fs);
+    gl.linkProgram(tmpProgram);
+
+    return tmpProgram;
+  };
+
+  /**
+   * Compile the shader.
+   * 
+   * @param  {WebGLRenderingContext} gl   WebGL context
+   * @param  {String}                code Shader code
+   * @param  {Int}                   type Shader type (gl.VERTEX_SHADER | gl.FRAGMENT_SHADER)
+   * @return {Shader}                Compiled shader
+   */
+  utils.compileShader = function(gl, code, type) {
+    var shader = gl.createShader(type);
+    
+    gl.shaderSource(shader, code);
+    gl.compileShader(shader);
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      var lines = gl.getShaderSource(shader).split('\n');
+      var src = '';
+      for (var i = 0; i < lines.length; i++) {
+        src += (i+1) + '.' + lines[i] + '\n';
+      }
+      throw 'GLSL Compilation Error:\n' + gl.getShaderInfoLog(shader) + '\n' + src;
+    }
+
+    return shader;
+  };
+
+  /**
+   * Create an empty texture.
+   * 
+   * @param  {WebGLRenderingContext} gl     WebGL context
+   * @param  {Number}                width  Width
+   * @param  {Number}                height Height
+   * @return {Texture}                      The texture
+   */
+  utils.createTexture = function(gl, width, height, options) {
+    
+    var type = options && options.type || gl.UNSIGNED_BYTE;
+    var min = options && options.minFilter || gl.NEAREST;
+    var mag = options && options.magFilter || gl.NEAREST;
+    var wrapS = options && options.wrapS || gl.CLAMP_TO_EDGE;
+    var wrapT = options && options.wrapT || gl.CLAMP_TO_EDGE;
+
+    var texture = gl.createTexture();
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, type, null);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, mag);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, min);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
+
+    // We are ready, release the texture.
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
+    return texture;
+  };
+
+  /**
+   * The default vertex.
+   * @type {String}
+   */
+  var DEFAULT_VERTEX_SHADER = [
+    'attribute vec2 position;',
+    'varying vec2 vUv;',
+
+    'void main() {',
+      'vUv =  position;',
+      'vec2 vPos = position * 2.0 - 1.0;',
+      'gl_Position = vec4(vPos.x, vPos.y, 0, 1);',
+    '}'
+  ].join('\n');
+
+  /**
+   * The default fragment to paint in buffer.
+   * @type {String}
+   */
+  var DEFAULT_FRAGMENT_SHADER = [
+    'precision highp float;',
+    'uniform sampler2D tSampler;',
+
+    'varying vec2 vUv;',
+    'void main() {',
+    '  gl_FragColor = texture2D(tSampler, vUv);',
+    '}'
+  ].join('\n');
+
+  /**
+   * 2 triangles (plane) for painting the result
+   * @type {Float32Array}
+   */
+  var VERTICES = new Float32Array([
+    -1.0,-1.0, 1.0,-1.0, -1.0,1.0,
+    1.0,-1.0, 1.0,1.0, -1.0,1.0
+  ]);
+
+  /**
+   * Pre-compute VERTICES length
+   * @type {Number}
+   */
+  var VERTICES_LENGTH = VERTICES.length / 2;
+
+  /**
+   * Apply uniform.
+   * 
+   * @param  {Object} gl       GL context
+   * @param  {Object} shader   Shader program
+   * @param  {Object} type     GL uniform type or 't' for texture
+   * @param  {String} location Uniform name
+   * @param  {Object} value    Value to set
+   * @param  {Object} texture  Web GL texture if type is 't'
+   */
+  var applyUniform = function(gl, shader, type, location, value, texture) {
+    var uLocation = gl.getUniformLocation(shader, location);
+
+    if (value === null || !uLocation) {
+      return;
+    }
+    
+    var args = [uLocation];
+    if (value.length) // value is an array
+      args = args.concat(value);
+    else
+      args.push(value);
+
+    if (!texture) {
+      type.apply(gl, args);
+    }
+    else { // texture
+      type.call(gl, uLocation, value);
+
+      if (texture.length) { 
+        // textures array
+        for (var i = 0; i < texture.length; i++) {
+          gl.activeTexture(gl.TEXTURE0 + value[i]);
+          gl.bindTexture(gl.TEXTURE_2D, texture[i]);
+        }
+      }
+      else { // single texture
+        gl.activeTexture(gl.TEXTURE0 + value);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+      } 
+    }
+  };
+
+  /**
+   * Apply attribute.
+   * 
+   * @param  {Object} gl       GL context
+   * @param  {Object} shader   Shader program
+   * @param  {String} location Location name
+   */
+  var applyAttribute = function(gl, shader, location, size, buffer, data) {
+    var aLocation = gl.getAttribLocation(shader, location);
+
+    if (aLocation < 0) {
+      return;
+    }
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+    gl.enableVertexAttribArray(aLocation);
+    gl.vertexAttribPointer(aLocation, size, gl.FLOAT, false, 0, 0);
+  };
+
+  /**
+   * RTT constructor
+   * @param {WebGLRenderingContext} gl      WebGL context for rendering
+   * @param {Object}                options Object of options.
+   */
+  var RTT = function(gl, options) {
+    this.options = options || {};
+    this.gl = gl;
+   
+    if (!(this.gl && this.gl instanceof WebGLRenderingContext)) {
+      console.log('Error, paramater [gl] must be a WebGL context');
+      return;
+    }
+
+    // Init texture size
+    this.width = this.options.width || gl.canvas.width;
+    this.height = this.options.height || gl.canvas.height;
+
+    // Init viewport size
+    this.viewportWidth = this.options.viewportWidth || gl.canvas.width;
+    this.viewportHeight = this.options.viewportHeight || gl.canvas.height;
+
+    // Initialize stuffs
+    this.reset(true);
+  };
+  
+  /**
+   * Resize the RTT.
+   *  
+   * @param  {Object} options Object containing the new width/height.
+   * @return {Object}         'this'
+   */
+  RTT.prototype.resize = function(options) {
+    var gl = this.gl;
+
+    this.width = options && options.width || gl.canvas.width;
+    this.height = options && options.height || gl.canvas.height;
+
+    this.viewportWidth = options && options.viewportWidth || gl.canvas.width;
+    this.viewportHeight = options && options.viewportHeight || gl.canvas.height;
+
+    // Update texture sizes
+    for (var i = 0; i < this.textures.length; i++) {
+      var type = this.options.texture && this.options.texture.type || gl.UNSIGNED_BYTE;
+      gl.bindTexture(gl.TEXTURE_2D, this.textures[i]);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, type, null);
+    }
+
+    // Update history size
+    for (var i = 0; i < this.history.length; i++) {
+      var type = this.options.texture && this.options.texture.type || gl.UNSIGNED_BYTE;
+      gl.bindTexture(gl.TEXTURE_2D, this.history[i]);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, type, null);
+    }
+
+    return this;
+  };
+
+  RTT.prototype.reset = function(init) {
+    var gl = this.gl;
+
+    if (!init) {
+      var i;
+      // Clean textures
+      for (i = 0; i < this.textures.length; i++) {
+        gl.deleteTexture(this.textures[i]);
+      }
+
+      // Clean shaders
+      for (i = 0; i < this.shaders.length; i++) {
+        gl.deleteProgram(this.shaders[i]);
+      }
+
+      // clean framebuffer
+      gl.deleteFramebuffer(this.frameBuffer);
+
+      // clean geometry buffer
+      gl.deleteBuffer(this.geometryBuffer);
+
+      // Clean history
+      for (i = 0; i < this.history.length; i++) {
+        gl.deleteTexture(this.history[i]);
+      }
+    }
+
+    // Shaders list
+    this.shaders = [];
+
+    // Atrributes list
+    this.attributes = [];
+
+    // Uniforms list
+    this.uniforms = [];
+
+    // Framebuffer & textures
+    this.frameBuffer = gl.createFramebuffer();
+    this.textures = [
+      utils.createTexture(gl, this.width, this.height, this.options.texture),
+      utils.createTexture(gl, this.width, this.height, this.options.texture)
+    ];
+
+    // History textures
+    this.history = new Array(this.options.history + 1 || 0); // One more for ping-pong
+    for (var i = 0; i < this.history.length; i++) {
+      this.history[i] = utils.createTexture(gl, this.width, this.height, this.options.texture);
+    }
+
+    // Cyclic index
+    this.renderIndex = 0;
+
+    // Paint buffer & shader
+    this.quadBuffer = gl.createBuffer();
+    this.paintShader = utils.createProgram(gl, DEFAULT_VERTEX_SHADER, DEFAULT_FRAGMENT_SHADER);
+
+    // Init quad buffer for painting + geometry for rendering
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.quadBuffer);
+    this.quadVertices = new Float32Array(VERTICES);
+
+    this.geometryBuffer = this.quadBuffer;
+    this.vertices = this.quadVertices;
+    this.geometry = [gl.TRIANGLE_STRIP, 0, VERTICES_LENGTH]; // default to quad
+
+    // Process custom geometry
+    if (this.options.geometry) {
+      this.geometryBuffer = gl.createBuffer();
+      this.vertices = this.options.geometry.shift();
+
+      this.geometry = this.options.geometry;
+    }
+
+    return this;
+  };
+
+  /**
+   * Add a new fragment in the RTT chain with DEFAULT_VERTEX_SHADER vertex.
+   * 
+   * @param  {String} fragmentShader The fragment shader
+   * @return {Object}                'this' RTT for chaining
+   */
+  RTT.prototype.fragment = function(fragmentShader, uniforms) {
+    return this.vertexFragment(DEFAULT_VERTEX_SHADER, fragmentShader, uniforms);
+  };
+
+  /**
+   * Add a new vertex/fragment in the RTT chain.
+   * 
+   * @param  {String} vertexShader   The vertext shader
+   * @param  {String} fragmentShader The fragment shader
+   * @return {Object}                'this' RTT for chaining
+   */
+  RTT.prototype.vertexFragment = function(vertextShader, fragmentShader, uniforms, attributes) {
+
+    var shader = utils.createProgram(this.gl, vertextShader, fragmentShader);
+
+    this.shaders.push(shader);
+    this.uniforms.push(uniforms);
+    
+    // Init buffers before pushing on stack
+    for (var a in attributes) {
+      attributes[a].buffer = gl.createBuffer();
+    }
+
+    this.attributes.push(attributes);
+
+    return this;
+  };
+
+  /**
+   * Render the fragments.
+   * @return {Object}  'this' RTT for chaining
+   */
+  RTT.prototype.render = function() {
+
+    var gl = this.gl, input, i, j, textureUnit, units;
+
+    for (i = 0; i < this.shaders.length; i++) {
+
+      textureUnit = 0;
+
+      this.renderIndex = (this.renderIndex + 1) % 2;
+
+      // Ping pong
+      input = this.output;
+      this.output = this.textures[this.renderIndex];
+
+      // Switch with history texture if last shader
+      if (this.history.length && i == this.shaders.length-1) {
+        // Advance in history
+        this.history.unshift(this.history.pop());
+        this.output = this.history[0];
+      }
+
+      // Bind program & framebuffer
+      gl.useProgram(this.shaders[i]);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.output, 0);
+
+      // Apply position attribute
+      applyAttribute(gl, this.shaders[i], 'position', 2, this.geometryBuffer, this.vertices);
+
+      var attributes = this.attributes[i] || {};
+      for (var a in attributes) {
+        applyAttribute(gl, this.shaders[i], a, attributes[a].size, attributes[a].buffer, attributes[a].data);
+      }
+
+      // Apply n-1 sampler result
+      applyUniform(gl, this.shaders[i], gl.uniform1i, 'tSampler', textureUnit, input);
+      textureUnit ++;
+      
+      // Apply uniforms
+      var uniforms = this.uniforms[i] || {};
+      for (var u in uniforms) {
+        if (uniforms[u].type == 't') {
+          applyUniform(gl, this.shaders[i], gl.uniform1i, u, textureUnit, uniforms[u].value);
+          textureUnit ++;
+        }
+        else {
+          applyUniform(gl, this.shaders[i], gl['uniform' + uniforms[u].type], u, uniforms[u].value);
+        }
+      }
+
+      if (this.history.length) {
+        units = [];
+        for (j = 1; j < this.history.length; j++) {
+          units.push(++textureUnit);
+        }
+        applyUniform(gl, this.shaders[i], gl.uniform1iv, "tHistory", units, this.history.slice(1));
+      }
+
+      // Draw
+      gl.viewport(0, 0, this.width, this.height);
+      gl.drawArrays.apply(gl, this.geometry);
+    }
+   
+    return this;
+  };
+
+  /**
+   * Iterate the last program on the stack.
+   * 
+   * @param  {Number} count Iterate count
+   * @return {Object} 'this' RTT for chaining
+   */
+  RTT.prototype.iterate = function(count) {
+
+    var shader = this.shaders[this.shaders.length - 1];
+    var uniform = this.uniforms[this.uniforms.length - 1];
+    
+    for (var i = 0; i < count; i++) {
+      this.shaders.push(shader);
+      this.uniforms.push(uniform);
+    }
+
+    return this;
+  };
+
+  /**
+   * Swap the 2 internal textures.
+   * 
+   * @return {Object} 'this' RTT for chaining
+   */
+  RTT.prototype.swap = function() {
+    var tmp = this.textures[0];
+    this.textures[0] = this.textures[1];
+    this.textures[1] = tmp;
+
+    return this;
+  };
+
+  /**
+   * Clear the framebuffer.
+   * 
+   * @return {Object} 'this' RTT for chaining
+   */
+  RTT.prototype.clear = function() {
+    
+    if (!this.output) { // Nothing to clear
+      return this;
+    }
+
+    var gl = this.gl;
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+
+    return this;
+  };
+
+  /**
+   * Paint in the screen buffer.
+   * @return {Object} 'this' RTT for chaining
+   */
+  RTT.prototype.paint = function() {
+    
+    if (!this.output) {
+      console.log('Error: no output to paint. Call render() at least once.');
+      return this;
+    }
+
+    var gl = this.gl;
+
+    gl.useProgram(this.paintShader);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    
+    applyAttribute(gl, this.paintShader, 'position', 2, this.quadBuffer, this.quadVertices);
+    applyUniform(gl, this.paintShader, gl.uniform1i, 'tSampler', 0, this.output);
+
+    gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, VERTICES_LENGTH);
+
+    return this;
+  };
+
+  // Export
+  exports.RTT = RTT;
+
+})(window);

@@ -21,7 +21,7 @@
   // Particle base size, age and radius
   var PARTICLE_SIZE = 0.7;
   var PARTICLE_AGE = 5;
-  var PARTICLE_RADIUS = 0.05;
+  var PARTICLE_RADIUS = 0.025;
 
   /**
    * Stage Particles Effect
