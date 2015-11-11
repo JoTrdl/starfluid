@@ -76,11 +76,11 @@
 
       var onMouseMove = this.mousemove.bind(this);
       
-      ctx.gl.canvas.addEventListener('mouseup', function() {
-        ctx.gl.canvas.removeEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', function() {
+        document.removeEventListener('mousemove', onMouseMove);
       }, false);
-      ctx.gl.canvas.addEventListener('mousedown', function() {
-        ctx.gl.canvas.addEventListener('mousemove', onMouseMove, false);
+      document.addEventListener('mousedown', function() {
+        document.addEventListener('mousemove', onMouseMove, false);
       }, false);
 
     },

@@ -9,9 +9,52 @@
 
   <style>
     html, body { margin: 0; padding: 0; background-color: #000; }
-    canvas { position: absolute; top: 0; left: 0; z-index: 0; }
+    canvas { position: absolute; top: 0; left: 0; z-index: 0; cursor: pointer; }
     #screenshot { position: absolute; width: 100%; height: 100%; z-index: 1; display: none; }
     #ce { position: absolute; z-index: 3; bottom: 10px; right: 10px }
+
+    .hcenter { display: table; width:100%; height:100vh; }
+    .vcenter { display: table-cell; width:100%; height:100%; text-align: center; vertical-align: middle; }
+
+    #helper {
+      width: 512px;
+      height: 512px;
+      background-image: url('/img/mouses.png');
+      opacity: .95;
+      display: inline-block;
+
+      -webkit-animation: play 1.75s steps(3) infinite;
+         -moz-animation: play 1.75s steps(3) infinite;
+          -ms-animation: play 1.75s steps(3) infinite;
+           -o-animation: play 1.75s steps(3) infinite;
+              animation: play 1.75s steps(3) infinite;
+    }
+
+    @-webkit-keyframes play {
+       from { background-position:    0px; }
+         to { background-position: -1536px; }
+    }
+
+    @-moz-keyframes play {
+       from { background-position:    0px; }
+         to { background-position: -1536px; }
+    }
+
+    @-ms-keyframes play {
+       from { background-position:    0px; }
+         to { background-position: -1536px; }
+    }
+
+    @-o-keyframes play {
+       from { background-position:    0px; }
+         to { background-position: -1536px; }
+    }
+
+    @keyframes play {
+       from { background-position:    0px; }
+         to { background-position: -1536px; }
+    }
+
   </style>
   
   <script src="js/lib/rtt.gl.js"></script>
@@ -27,6 +70,12 @@
 <body>
   <img id="screenshot" src="img/starsfluid.png"/>
   <canvas id="canvas" width="512" height="512"></canvas>
+
+  <div class="hcenter">
+    <div class="vcenter">
+      <div id="helper"></div>
+    </div>
+  </div>
 </body>
 
 <extern src="shaders/motion.html"></extern>
@@ -85,7 +134,12 @@
       if (e.keyCode == 32) {
         renderer.pause();
       }
-    }, false)
+    }, false);
+
+    document.addEventListener('mousedown', function(e) {
+      document.getElementById('helper').style.display = 'none';
+    }, false);
+
   })();
 </script>
 
