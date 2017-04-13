@@ -4,9 +4,9 @@
   var CELLS = 256;
 
   Stage.Motion = Stage.Effect.extend({
-    
+
     name: 'motion',
-    
+
     initialize: function(ctx) {
       this.ctx = ctx;
 
@@ -31,19 +31,24 @@
       document.addEventListener('mouseup', function () {
         self.addDye = false;
       }, false);
-      document.addEventListener('mousedown', function () {
-        self.addDye = true;
+      document.addEventListener('mousedown', function (event) {
+        event = event || window.event;
+        //The following will detect if the left and only the left mouse button is pressed
+        var isLeftButtonPressed = "buttons" in event ? event.buttons == 1 : event.which || event.button;
+        if (isLeftButtonPressed){
+          self.addDye = true;
+        }
       }, false);
       canvas.addEventListener('mousemove', this.mousemove.bind(this), false);
     },
-    
+
     update: function(ctx) {
       this.ctx = ctx;
       this.motion.render();
       this.uniforms.velocity.value = [0, 0];
       this.uniforms.dye.value = 0;
     },
-    
+
     resize: function(ctx) {
       this.ctx = ctx;
       this.uniforms.ratio.value = ctx.aspect;
@@ -67,11 +72,11 @@
       // Set the current position in source shader
       this.uniforms.lastPoint.value = (this.uniforms.point.value) ? this.uniforms.point.value : [i/CELLS, 1.0 - j/CELLS];
       this.uniforms.point.value = [i/CELLS, 1.0 - j/CELLS];
-      
+
       // Mouse velocity
       var du = (mouseX - this.oldMouseX),
           dv = (mouseY - this.oldMouseY);
-      
+
       // Convert in shader space
       du = (du / this.ctx.width);
       dv = (dv / this.ctx.height);
