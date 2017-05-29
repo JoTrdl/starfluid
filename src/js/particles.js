@@ -75,12 +75,17 @@
       this.bufferIndex = 0;
 
       var onMouseMove = this.mousemove.bind(this);
-      
+
       document.addEventListener('mouseup', function() {
         document.removeEventListener('mousemove', onMouseMove);
       }, false);
-      document.addEventListener('mousedown', function() {
-        document.addEventListener('mousemove', onMouseMove, false);
+      document.addEventListener('mousedown', function(event) {
+        event = event || window.event;
+        //The following will detect if the left and only the left mouse button is pressed
+        var isLeftButtonPressed = "buttons" in event ? event.buttons == 1 : event.which || event.button;
+        if (isLeftButtonPressed){
+          document.addEventListener('mousemove', onMouseMove, false);
+        }
       }, false);
 
     },
@@ -121,7 +126,7 @@
       // Determine the x and y coordinates in the particles data texture
       var x = ~~ (this.bufferIndex % CELLS_PARTICLE_DATA);
       var y = ~~ (this.bufferIndex / CELLS_PARTICLE_DATA);
-      
+
       gl.bindTexture(gl.TEXTURE_2D, this.data.output);
 
       for (var p = 0; p < PARTICLE_EMIT_RATE; p++) {
